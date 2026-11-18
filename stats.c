@@ -42,7 +42,7 @@ static void add_int_value(struct ColumnStats *stats, long long value, long long 
     // Остаток от деления на 2 у чётных чисел равен 0 (и у отрицательных тоже)
     if (value % 2 == 0) {
         stats->even++;
-    }
+    } 
 
     stats->count++;
 }
@@ -64,7 +64,13 @@ static void add_double_value(struct ColumnStats *stats, double value)
 {
     if (stats->count == 0) {
         stats->double_min = value;
+        if (value == 0){
+            stats->double_min = 0.0;
+        }
         stats->double_max = value;
+        if (value == 0){
+            stats->double_max = 0.0;
+        }
     }
     if (value < stats->double_min) {
         stats->double_min = value;
@@ -88,7 +94,6 @@ static void add_double_value(struct ColumnStats *stats, double value)
 
     stats->count++;
 }
-
 int stats_read(const char *file_name, const struct Schema *schema, struct ColumnStats *stats)
 {
     // Все накопители начинаем с нуля.
@@ -136,6 +141,9 @@ int stats_read(const char *file_name, const struct Schema *schema, struct Column
                 stats[i].mean = int_mean(stats[i].quotient_sum, stats[i].remainder_sum, rows);
             } else if (schema->types[i] == TYPE_DOUBLE) {
                 stats[i].mean = stats[i].double_sum / (double)rows;
+                if (stats[i].mean == 0){
+                    stats[i].mean = 0.0;
+                }
             }
         }
     }
